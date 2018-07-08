@@ -450,22 +450,17 @@ public class Common {
             System.out.println(nums[0]);
         }
         int sum=nums[0];
-		int max=nums[0];
-		
-		
-		for(int i=1;i<nums.length;i++) {
-			
-			if(nums[i] >max) {
-				max=nums[i];
-				sum=nums[i];
-			}else {
-				sum=sum+nums[i];
-				if(sum>max) {
-					max=sum;
-				}
-			}
-			
-		}
+        int max=sum;
+        
+        for(int i=1;i<nums.length;i++) {
+        	if(nums[i]>sum && sum<0) {
+        		sum=nums[i];
+        		
+        	}else {
+        		sum=sum+nums[i];
+        	}
+        	max=max>sum?max:sum;
+        }
 		
 		System.out.println(max);
 	}
@@ -964,36 +959,26 @@ public static int calculate(int n) {
 	return sum;
 }
 
-public void rob(int[] nums) {
-    int adj1=nums[0];
-    int adj2=nums[1];
-    int adj1previous=0;
-    int adj2previous=1;
-    int valAtPrevious1=nums[0];
-    int valAtPrevious2=nums[1];
-    
-    for(int i=2;i<nums.length;i++) {
-    	int val=nums[i];
-    	
-    	if(adj1>adj2) {
-    		if(i!=adj1previous+1) {
-    			if(nums[i] > valAtPrevious1) {
-    				adj1=Math.abs(adj1-valAtPrevious1);
-    			}adj1=adj1+nums[i];
-    				valAtPrevious1=nums[i];
-    				adj1previous=i;
-    			
-    		}else {
-    			if(nums[i] > valAtPrevious2) {
-    				adj2=Math.abs(adj2-valAtPrevious2);
-    			}adj2=adj2+nums[i];
-    				valAtPrevious2=nums[i];
-    				adj2previous=i;
-    		}
-    	}else {
-    		
-    	}
-    }
+public static int  rob(int[] nums) {
+	
+	if(nums.length==0) {
+		return 0;
+	}
+	
+	if(nums.length==1) {
+		return nums[0];
+	}
+	int adj1=0;
+	int adj2=0;
+	for(int i=0;i<nums.length;i=i+2) {
+		adj1=adj1+nums[i];
+	}
+	
+	for(int i=1;i<nums.length;i=i+2) {
+		adj2=adj2+nums[i];
+	}
+	
+	return adj1>adj2?adj1:adj2;
 }
 
 public static void reverseBits(int n) {
@@ -1060,38 +1045,33 @@ public static String getString(String s) {
 }
 public static boolean isIsomorphic(String s, String t) {
 	
-	HashMap<Character,Long>check1=new HashMap<Character,Long>();
-	HashMap<Character,Long>check2=new HashMap<Character,Long>();
-	String s1="";
-	long i1=0;
-	long i2=0;
-	String s2="";
-	
+	if(s.isEmpty() && t.isEmpty()) {
+		return true;
+	}
+	HashMap<Character,Character> map=new HashMap<Character,Character>();
+	char[]map2=new char[256];
 	
 	for(int i=0;i<s.length();i++) {
-		System.out.println("int i is "+i);
-		if(check1.containsKey(s.charAt(i))) {
-			s1=s1+check1.get(s.charAt(i));
+		
+		if(map.containsKey(s.charAt(i))) {
+			if(t.charAt(i)!=map.get(s.charAt(i))) {
+				return false;
+			}
+			if(map2[t.charAt(i)]!=s.charAt(i)) {
+				return false;
+			}
 		}else {
-			s1=s1+i1;
-			check1.put(s.charAt(i), i1);
-			i1++;
+			if(map2[t.charAt(i)]!=0) {
+				return false;
+			}
+			map2[t.charAt(i)]=s.charAt(i);
+			map.put(s.charAt(i), t.charAt(i));
+			
 		}
-		
-		
-		if(check2.containsKey(t.charAt(i))) {
-			s2=s2+check2.get(t.charAt(i));
-		}else {
-			s2=s2+i2;
-			check2.put(t.charAt(i), i2);
-			i2++;
-		}
-		
 	}
 	
-	System.out.println("String for "+s+" is "+s1);
-	System.out.println("String for "+t+" is "+s2);
-	return s1.equals(s2);
+	return true;
+	
 }
 
 //Given an array of integers and an integer k, find out whether there are
@@ -1463,28 +1443,11 @@ public static int firstUniqChar(String s) {
 
 
 public static int guessNumber(int n) {
+    int mid=n/2;
     
+    return mid;
     
-	int result=0;
-	int head=1;
-	int tail=n;
-	while(tail>=head) {
-		int mid=head+(tail-head)/2;
-		if(guess(mid)==0) {
-			result= mid;
-			break;
-		}
-		
-		if(guess(mid)==1) {
-			head=mid+1;
-		}
-		
-		if(guess(mid)==-1) {
-			tail=mid-1;
-		}
-	}
 	
-	return result; 
 }
 
 
@@ -2774,9 +2737,198 @@ public static int lengthOfLongestSubstring(String s) {
 	return max;
 }
 
+public static int convertIntToRoman(String s) {
+	String roman=s;
+    HashMap<Character,Integer> map=new HashMap<Character,Integer>();
+map.put('I',1);
+map.put('V',5);
+map.put('X',10);
+map.put('L',50);
+map.put('C',100);
+map.put('D',500);
+map.put('M',1000);
+
+int prev=-1;
+int curr=0;
+int number=0;
+
+int i=0;
+
+while(i<roman.length()-1) {
+	int numberToAdd=0;
+	
+	if(map.get(roman.charAt(i))>=map.get(roman.charAt(i+1))) {
+		numberToAdd=numberToAdd+map.get(roman.charAt(i));
+		i++;
+	}else {
+		numberToAdd=numberToAdd+Math.abs(map.get(roman.charAt(i+1))-map.get(roman.charAt(i)));
+		i=i+2;
+	}
+	
+	number=number+numberToAdd;
+	
+}
+    
+    if(i==roman.length()){
+        return number;
+    }
+    
+    return number=map.get(roman.charAt(i));
+}
+	
+	
+	
+	
+
+public static String longestCommonPrefix(String[] strs) {
+   
+    String first=strs[0];
+    StringBuilder prefix=new StringBuilder(first);
+    for(int i=1;i<strs.length;i++) {
+    	String second=strs[i];
+    	int lengthToCounter=second.length()>first.length()?first.length():second.length();
+    	int j=0;
+    	String result="";
+    	while(j<lengthToCounter) {
+    		if(first.charAt(j)==second.charAt(j)) {
+    			result=result+first.charAt(j);
+    		}else {
+    			break;
+    		}
+    		j++;
+    	}
+    	
+    	prefix=prefix.length()>result.length()?new StringBuilder(result):prefix;
+    	first=second.length()>first.length()?first:second;
+    	
+    }
+    
+    return prefix.toString();
+}
+
+ static ArrayList<int[]> watch=new ArrayList<int[]> ();
+ 
+public void addToArrayResult(int []nums) {
+	int []n=new int[nums.length];
+	for(int i=0;i<nums.length;i++) {
+		n[i]=nums[i];
+	}
+	watch.add(n);
+ }
+
+public  void helperForWatch(int count,int currentIndex,int[] nums,int maxCount) {
+	if(count==maxCount) {
+		Common c=new Common();
+		c.addToArrayResult(nums);
+		//watch.addAll(Arrays.asList(nums));
+		//nums[currentIndex-1]=0;
+		return;
+	}
+	if(currentIndex>nums.length-1) {
+		return;
+	}
+	
+	for(int i=currentIndex;i<nums.length;i++) {
+		nums[i]=1;
+		helperForWatch(count+1,i+1,nums,maxCount);
+		nums[i]=0;
+	}
+	
+	
+	
+}
+
+public static void binaryWatch(int n) {
+	Common c=new Common();
+	int[]a= {0,0,0,0,0,0,0,0,0,0,0};
+	c.helperForWatch(0,0,a,2);
+	
+	for(int[] states:c.watch) {
+		for(int i:states) {
+			System.out.print(i+" ");
+		}
+		System.out.println(" ");
+	}
+}
+
+public static int  longestPalindrome(String s) {
+    int sumEven=0;
+    int sumOdd=0;
+    HashMap<Character,Integer> map=new HashMap<Character,Integer>();
+    
+    for(Character c:s.toCharArray()) {
+    	if(map.containsKey(c)) {
+    		map.put(c, map.get(c)+1);
+    	}else {
+    		map.put(c,1);
+    	}
+    }
+    
+    for(Map.Entry<Character,Integer> set:map.entrySet()) {
+    	if(set.getValue()%2==0) {
+    		sumEven=sumEven+set.getValue();
+    	}else {
+    		
+    		sumOdd=Math.max(sumOdd, set.getValue());
+    	}
+    }
+    
+    System.out.println(sumEven+sumOdd);
+    return sumEven+sumOdd;
+    
+}
+
+public static void numberOfBoomerangs(int[][] points) {
+    HashSet<Double> distance=new HashSet<Double> ();
+    int count=0;
+    for(int i=0;i<points.length-1;i++) {
+    	
+    	for(int j=i+1;j<points.length;j++) {
+    		double distanceResult=getDistance(points[i][0],points[j][0],points[i][1],points[j][1]);
+    		if(distance.contains(distanceResult)) {
+    			count++;
+    		}else {
+    			distance.add(distanceResult);
+    		}
+    	}
+    	
+    }
+    
+    System.out.println(count);
+}
+
+public static double getDistance(int x1,int x2,int y1,int y2) {
+	
+	double distance=Math.pow(x2-x1, 2)+Math.pow(y2-y1, 2);
+	return Math.sqrt(distance);
+}
+
+public static void findDisappearedNumbersAgain(int[] nums) {
+    List<Integer> result=new ArrayList<Integer>();
+    for(int i=0;i<nums.length;i++) {
+    	if(nums[i]<=nums.length) {
+    		int point=Math.abs(nums[i]);
+    		if(nums[point-1]>0) {
+    			nums[point-1]=nums[point-1]*-1;
+    		}
+    		
+    	}
+    }
+    
+    for(int i=0;i<nums.length;i++) {
+    	if(nums[i]>0) {
+    		result.add(i+1);
+    	}
+    }
+    
+    for(int i:result) {
+    	System.out.println(i);
+    }
+}
+
 	public static void main(String[] args) {
-		System.out.println(lengthOfLongestSubstring("abba"));
-		
+		int[]n= {4,3,2,7,8,2,3,1};
+		findDisappearedNumbersAgain(n);
 		//Employee two=new Employee(2,3,new ArrayList<Integer>());
 		
 				
